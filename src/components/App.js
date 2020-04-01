@@ -1,16 +1,21 @@
 import React, { Component } from 'react';
+import Navbar from './Navbar';
+import Main from './Main';
 import Web3 from 'web3';
 import logo from '../logo.png';
-import './App.css';
+import '../styles/App.css';
+import SocialThread from '../abis/SocialThread.json';
 
 class App extends Component {
 
   async componentWillMount() {
+
     await this.loadWeb3();
     await this.loadBlockchainData();
   }
 
   async loadWeb3() {
+
     if (window.ethereum) {
       window.web3 = new Web3(window.ethereum);
       await window.ethereum.enable();
@@ -22,52 +27,66 @@ class App extends Component {
   }
 
   async loadBlockchainData() {
+
     const web3 = window.web3;
     // Load account
     const accounts = await web3.eth.getAccounts();
     console.log(accounts);
+    this.setState({ account: accounts[0] });
+
+    // Network ID
+    const networkId = await web3.eth.net.getId();
+    const networkData = SocialThread.networks[networkId];
+
+    if (networkData) {
+      const socialThread = web3.eth.Contract(SocialNetwork.abi, networkData.address);
+      this.setState({ socialThread });
+      const postCount = await socialThread.methods.postCount().call();
+      this.setState({ postCount });
+
+      // Load Posts
+      for (var i = 1; i <= postCount; i++) {
+        const post = await socialThread.methods.posts(i).call();
+        this.setState({
+          posts: [...this.state.posts, post]
+        });
+      }
+
+      // Set loading to false
+      this.setState({ loading: false });
+
+    } else {
+      window.alert('SocialThread contract not deployed to detected network.');
+    }
+  }
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      account: '',
+      socialThread: null,
+      postCount: 0,
+      posts: [],
+      loading: true
+    }
   }
 
   render() {
     return (
       <div>
-        <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-          <a
-            className="navbar-brand col-sm-3 col-md-2 mr-0"
-            href="http://www.dappuniversity.com/bootcamp"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Dapp University
-          </a>
-        </nav>
-        <div className="container-fluid mt-5">
-          <div className="row">
-            <main role="main" className="col-lg-12 d-flex text-center">
-              <div className="content mr-auto ml-auto">
-                <a
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <img src={logo} className="App-logo" alt="logo" />
-                </a>
-                <h1>Dapp University Starter Kit</h1>
-                <p>
-                  Edit <code>src/components/App.js</code> and save to reload.
-                </p>
-                <a
-                  className="App-link"
-                  href="http://www.dappuniversity.com/bootcamp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  LEARN BLOCKCHAIN <u><b>NOW! </b></u>
-                </a>
-              </div>
-            </main>
-          </div>
-        </div>
+        <Navbar account={this.state.account} />
+        {
+          this.state.loading
+          ?
+          <div id="loader" className="text-center mt-5"><p>Loading...</p></div>
+          :
+          <Main
+            posts={this.state.posts}
+            createPost={this.createPost}
+            tipPost={this.tipPost}
+          />
+        }
+
       </div>
     );
   }
