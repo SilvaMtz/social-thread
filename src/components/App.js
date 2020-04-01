@@ -39,7 +39,7 @@ class App extends Component {
     const networkData = SocialThread.networks[networkId];
 
     if (networkData) {
-      const socialThread = web3.eth.Contract(SocialNetwork.abi, networkData.address);
+      const socialThread = web3.eth.Contract(SocialThread.abi, networkData.address);
       this.setState({ socialThread });
       const postCount = await socialThread.methods.postCount().call();
       this.setState({ postCount });
