@@ -47,6 +47,12 @@ contract('SocialThread', ([deployer, author, tipper]) => {
       await socialThread.createPost('', { from: author }).should.be.rejected;
     });
 
+    it('Lists posts', async() => {
+      const post = await socialThread.posts(postCount);
+      assert.equal(post.id.toNumber(), postCount.toNumber(), 'id is correct');
+      assert.equal(post.content, 'This is my first post', 'content is correct')
+      assert.equal(post.tipAmount, '0', 'tip amount is correct')
+      assert.equal(post.author, author, 'author is correct')
+    });
   });
-
 });
