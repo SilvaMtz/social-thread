@@ -55,7 +55,7 @@ contract('SocialThread', ([deployer, author, tipper]) => {
       assert.equal(post.author, author, 'author is correct');
     });
 
-    it('allows users to tip posts', async() => {
+    it('Allows users to tip posts', async() => {
       // Track the author balance before purchase
       let oldAuthorBalance;
       oldAuthorBalance = await web3.eth.getBalance(author)
