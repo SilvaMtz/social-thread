@@ -60,6 +60,22 @@ class App extends Component {
     }
   }
 
+  createPost(content) {
+    this.setState({ loading: true });
+    this.state.socialThread.methods.createPost(content).send({ from: this.state.account })
+    .once('receipt', (receipt) => {
+      this.setState({ loading: false });
+    })
+  }
+
+  tipPost(id, tipAmount) {
+    this.setState({ loading: true });
+    this.state.socialThread.methods.tipPost(id).send({ from:this.state.account, value: tipAmount })
+    .once('receipt', (receipt) => {
+      this.setState({ loading: false });
+    });
+  }
+
   constructor(props) {
     super(props);
     this.state = {
@@ -69,6 +85,8 @@ class App extends Component {
       posts: [],
       loading: true
     }
+    this.createPost = this.createPost.bind(this);
+    this.tipPost = this.tipPost.bind(this);
   }
 
   render() {
