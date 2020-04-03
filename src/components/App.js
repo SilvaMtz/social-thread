@@ -36,6 +36,7 @@ class App extends Component {
 
     // Network ID
     const networkId = await web3.eth.net.getId();
+    console.log(networkId);
     const networkData = SocialThread.networks[networkId];
 
     if (networkData) {
